@@ -101,13 +101,15 @@ Start PostgreSQL and create the `employee_analytics` database and an `employees`
 
 ### 4. Initialize the policy vector collection
 
-Run the policy demo script once to create and populate the ChromaDB collection used by the policy search tool:
+From the repository root, run the ingestion script:
 
 ```bash
-python chroma_rag.py
+python ingest_policies.py
 ```
 
-The script also prompts for a sample question after initialization. The API expects the `company_policies` collection to exist. The current demo script seeds sample policy statements in code; `employee_policies.txt` is included as a separate reference file.
+The script reads policy sections from `employee_policies.txt`, creates Gemini embeddings, and stores the sections in the persistent ChromaDB collection named `company_policies`. You can rerun it after editing the policy file; it replaces the collection's current entries with the updated sections.
+
+This step requires a valid `GEMINI_API_KEY` in your local `.env` file. Run ingestion before starting the backend because the policy search module expects the collection to exist.
 
 ### 5. Start the backend
 
@@ -133,7 +135,7 @@ Open `http://localhost:4200` in your browser. The frontend API URL is currently 
 
 ## Current Status
 
-This is a learning-focused project demonstrating LLM tool calling, SQL-backed data retrieval, semantic search, and a full-stack chat interface. It is not a production-ready HR system. Possible next steps include automated evaluation, improved error handling and observability, and a more streamlined policy-ingestion workflow.
+This is a learning-focused project demonstrating LLM tool calling, SQL-backed data retrieval, semantic policy search, and a full-stack chat interface. It is not a production-ready HR system. Possible next steps include automated evaluation, improved error handling, and observability.
 
 ## Security
 
