@@ -25,10 +25,10 @@ client = genai.Client(
 def get_connection():
     try:
         return psycopg2.connect(
-            host="localhost",
-            port=5432,
-            database="employee_analytics",
-            user="postgres",
+            host=os.getenv("POSTGRES_HOST", "localhost"),
+            port=int(os.getenv("POSTGRES_PORT", "5432")),
+            database=os.getenv("POSTGRES_DB", "employee_analytics"),
+            user=os.getenv("POSTGRES_USER", "postgres"),
             password=os.getenv("POSTGRES_PASSWORD"),
             connect_timeout=5
         )
