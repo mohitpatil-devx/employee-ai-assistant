@@ -1,37 +1,34 @@
 # Employee AI Assistant
 
-An AI-powered employee assistant that answers natural-language questions about employee information and company policies using Gemini function calling, PostgreSQL, and Retrieval-Augmented Generation (RAG).
+An AI-powered employee assistant that answers natural-language questions about employee information and company policies using Gemini tool calling, PostgreSQL, and Retrieval-Augmented Generation (RAG).
 
 ## Overview
 
-The Employee AI Assistant combines structured employee data with company policy documents to provide contextual answers through a conversational interface.
-
-Instead of relying on hardcoded keywords, the system uses an LLM to determine which tools are appropriate for a question, retrieve relevant information, and generate a natural-language response.
+The application combines structured employee data with semantically retrieved company policy information. Gemini chooses backend tools based on the question, and then generates a natural-language response from the returned results.
 
 ## Features
 
-- **Natural-language interaction:** Ask questions about employee information and company policies.
-- **AI tool calling:** Uses Gemini function calling to select and invoke relevant backend tools.
-- **Employee analytics:** Retrieves employee counts, salary summaries, individual employee records, and salary-based search results.
-- **Policy search with RAG:** Uses ChromaDB for semantic retrieval of company policy information.
-- **Combined queries:** Handles questions that require both employee data and policy information.
-- **Full-stack interface:** Angular frontend connected to a Python FastAPI backend.
+- Natural-language questions about employee records and company policies
+- Gemini function calling to select backend tools
+- Employee lookups and salary analytics using PostgreSQL
+- Semantic policy retrieval using ChromaDB and Gemini embeddings
+- Combined questions that require employee data and policy information
+- Angular and TypeScript frontend with a Python FastAPI backend
 
 ## Architecture
 
-Angular Frontend → FastAPI Backend → Gemini AI Agent → Backend Tools
+Angular frontend → FastAPI REST API → Gemini model/tool calling → backend tools
 
-The tools retrieve structured employee information from PostgreSQL and relevant policy information through ChromaDB-based retrieval. The retrieved results are passed back to the model to generate a response.
+Employee tools query PostgreSQL. The policy tool retrieves relevant text from ChromaDB, a vector database. The model uses tool results to compose the response.
 
 ## Technology Stack
 
-- **Frontend:** Angular, TypeScript
-- **Backend:** Python, FastAPI
-- **LLM and tool calling:** Google Gemini, Google GenAI SDK
-- **Database:** PostgreSQL
-- **Vector database:** ChromaDB
-- **Embeddings:** Gemini Embedding model (`gemini-embedding-001`)
-- **API:** REST
+- Frontend: Angular, TypeScript
+- Backend: Python, FastAPI, Uvicorn
+- LLM and tool calling: Google Gemini, Google GenAI SDK
+- Relational database: PostgreSQL
+- Vector database: ChromaDB
+- Embeddings: `gemini-embedding-001`
 
 ## Example Questions
 
@@ -41,85 +38,108 @@ The tools retrieve structured employee information from PostgreSQL and relevant 
 - What is the company's work-from-home policy?
 - Can Rahul Sharma work from home, and what is his current salary?
 
-The assistant uses employee data and policy retrieval tools as needed to answer these questions.
+The employee and policy details in this project are demonstration data. Do not use real employee information in a public demo.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python
-- Node.js and npm
+- Python 3.10 or later
+- Node.js and npm compatible with the Angular project
 - PostgreSQL
 - A Google Gemini API key
 
-### Backend Setup
+### 1. Clone the repository
 
-1. Clone the repository:
+```bash
+git clone https://github.com/snake0507/employee-ai-assistant.git
+cd employee-ai-assistant
+```
 
-   ```bash
-   git clone https://github.com/snake0507/employee-ai-assistant.git
-   cd employee-ai-assistant
-   ```
+### 2. Configure environment variables
 
-2. Create and activate a Python virtual environment:
+Create a virtual environment and install backend dependencies:
 
-   ```bash
-   python -m venv venv
-   ```
+```bash
+python -m venv venv
+```
 
-   On Windows:
+On Windows:
 
-   ```bash
-   venv\Scripts\activate
-   ```
+```powershell
+.\venv\Scripts\Activate.ps1
+```
 
-3. Install the Python dependencies:
+Then install dependencies:
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-4. Configure the required environment variables for the Gemini API and PostgreSQL connection. Keep credentials in a local `.env` file and never commit secrets.
+Copy `.env.example` to `.env` and replace the placeholder values with your own credentials.
 
-5. Ensure PostgreSQL is running and the required database and employee table are configured.
+On Windows Command Prompt:
 
-6. Start the backend using the appropriate entry point for your project. If `main.py` contains the FastAPI application:
+```cmd
+copy .env.example .env
+```
 
-   ```bash
-   uvicorn main:app --reload
-   ```
+Required variables:
 
-### Frontend Setup
+- `GEMINI_API_KEY`
+- `POSTGRES_HOST` (defaults to `localhost` in the example)
+- `POSTGRES_PORT` (defaults to `5432`)
+- `POSTGRES_DB` (defaults to `employee_analytics`)
+- `POSTGRES_USER` (defaults to `postgres`)
+- `POSTGRES_PASSWORD`
 
-1. Open a separate terminal and navigate to the frontend directory:
+Never commit your real `.env` file or share API keys/passwords.
 
-   ```bash
-   cd frontend
-   ```
+### 3. Prepare PostgreSQL
 
-2. Install dependencies:
+Start PostgreSQL and create the `employee_analytics` database and an `employees` table with the columns expected by the backend: `id`, `full_name`, `department`, `salary`, and `active`. Add synthetic demonstration records before asking employee questions.
 
-   ```bash
-   npm install
-   ```
+### 4. Initialize the policy vector collection
 
-3. Start the Angular development server:
+Run the policy demo script once to create and populate the ChromaDB collection used by the policy search tool:
 
-   ```bash
-   ng serve
-   ```
+```bash
+python chroma_rag.py
+```
 
-4. Open `http://localhost:4200` in your browser.
+The script also prompts for a sample question after initialization. The API expects the `company_policies` collection to exist. The current demo script seeds sample policy statements in code; `employee_policies.txt` is included as a separate reference file.
 
-Ensure the frontend API URL matches the address of the running backend.
+### 5. Start the backend
+
+From the repository root:
+
+```bash
+uvicorn main:app --reload
+```
+
+The API runs at `http://127.0.0.1:8000`. API health check: `http://127.0.0.1:8000/api/health`.
+
+### 6. Start the frontend
+
+Open a second terminal:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Open `http://localhost:4200` in your browser. The frontend API URL is currently configured for `http://127.0.0.1:8000/api`.
 
 ## Current Status
 
-This project is a learning-focused implementation of an LLM-powered application integrating function calling, structured database queries, semantic policy retrieval, and a web interface. Further improvements can include automated agent evaluation, robust retry handling, observability, and persistent conversation state.
+This is a learning-focused project demonstrating LLM tool calling, SQL-backed data retrieval, semantic search, and a full-stack chat interface. It is not a production-ready HR system. Possible next steps include automated evaluation, improved error handling and observability, and a more streamlined policy-ingestion workflow.
 
 ## Security
 
-API keys, database credentials, and other secrets should be stored in environment variables and excluded from version control. Use only synthetic or authorized employee data.
+- Keep API keys and database passwords in environment variables.
+- Use synthetic or authorized data only.
+- If a credential has ever been committed to Git, rotate it; deleting it from the latest version does not remove it from Git history.
 
 ## Author
 
