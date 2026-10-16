@@ -1,0 +1,102 @@
+<div class="app-container">
+
+  <header class="header">
+    <div>
+      <h1>Employee AI Assistant</h1>
+      <p>Ask questions about employees, analytics, and company policies.</p>
+    </div>
+
+    <div class="status">
+      <span class="status-dot"></span>
+      AI Online
+    </div>
+  </header>
+
+  <main class="chat-container">
+
+    @if (messages.length === 0) {
+
+      <div class="welcome">
+
+        <h2>How can I help you?</h2>
+
+        <p>
+          Ask me about employee data or company policies.
+        </p>
+
+        <div class="suggestions">
+
+          <button
+            (click)="useSuggestion('How many employees are active?')">
+            How many employees are active?
+          </button>
+
+          <button
+            (click)="useSuggestion('Show salary summary by department')">
+            Show salary summary by department
+          </button>
+
+          <button
+            (click)="useSuggestion('Find employees in Technology')">
+            Find employees in Technology
+          </button>
+
+          <button
+            (click)="useSuggestion('What is the work-from-home policy?')">
+            What is the work-from-home policy?
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+    <div class="messages">
+
+      @for (msg of messages; track $index) {
+
+        <div
+          class="message"
+          [class.user-message]="msg.sender === 'user'"
+          [class.ai-message]="msg.sender === 'ai'">
+
+          {{ msg.text }}
+
+        </div>
+
+      }
+
+      @if (loading) {
+
+        <div class="message ai-message">
+          Thinking...
+        </div>
+
+      }
+
+    </div>
+
+    <div class="input-area">
+
+      <input
+        type="text"
+        [(ngModel)]="message"
+        (keyup.enter)="sendMessage()"
+        placeholder="Ask something about employees..."
+      />
+
+      <button
+        class="send-button"
+        (click)="sendMessage()"
+        [disabled]="loading">
+
+        {{ loading ? '...' : 'Send' }}
+
+      </button>
+
+    </div>
+
+  </main>
+
+</div>
