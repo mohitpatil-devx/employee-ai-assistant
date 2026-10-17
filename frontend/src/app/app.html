@@ -1,102 +1,123 @@
-<div class="app-container">
-
-  <header class="header">
-    <div>
-      <h1>Employee AI Assistant</h1>
-      <p>Ask questions about employees, analytics, and company policies.</p>
-    </div>
-
-    <div class="status">
-      <span class="status-dot"></span>
-      AI Online
-    </div>
-  </header>
-
-  <main class="chat-container">
-
-    @if (messages.length === 0) {
-
-      <div class="welcome">
-
-        <h2>How can I help you?</h2>
-
-        <p>
-          Ask me about employee data or company policies.
-        </p>
-
-        <div class="suggestions">
-
-          <button
-            (click)="useSuggestion('How many employees are active?')">
-            How many employees are active?
-          </button>
-
-          <button
-            (click)="useSuggestion('Show salary summary by department')">
-            Show salary summary by department
-          </button>
-
-          <button
-            (click)="useSuggestion('Find employees in Technology')">
-            Find employees in Technology
-          </button>
-
-          <button
-            (click)="useSuggestion('What is the work-from-home policy?')">
-            What is the work-from-home policy?
-          </button>
-
-        </div>
-
+﻿<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">✦</div>
+      <div>
+        <h2>Employee AI</h2>
+        <p>INTELLIGENCE ASSISTANT</p>
       </div>
-
-    }
-
-    <div class="messages">
-
-      @for (msg of messages; track $index) {
-
-        <div
-          class="message"
-          [class.user-message]="msg.sender === 'user'"
-          [class.ai-message]="msg.sender === 'ai'">
-
-          {{ msg.text }}
-
-        </div>
-
-      }
-
-      @if (loading) {
-
-        <div class="message ai-message">
-          Thinking...
-        </div>
-
-      }
-
     </div>
 
-    <div class="input-area">
+    <button class="new-chat" (click)="messages = []">
+      <span>＋</span> New conversation
+    </button>
 
-      <input
-        type="text"
-        [(ngModel)]="message"
-        (keyup.enter)="sendMessage()"
-        placeholder="Ask something about employees..."
-      />
+    <div class="sidebar-label">YOUR WORKSPACE</div>
+    <div class="sidebar-item active">◈ &nbsp; Employee analytics</div>
+    <div class="sidebar-item">▤ &nbsp; Company policies</div>
+    <div class="sidebar-item">◷ &nbsp; Recent conversations</div>
 
-      <button
-        class="send-button"
-        (click)="sendMessage()"
-        [disabled]="loading">
-
-        {{ loading ? '...' : 'Send' }}
-
-      </button>
-
+    <div class="sidebar-footer">
+      <div class="avatar">AI</div>
+      <div>
+        <strong>AI Assistant</strong>
+        <p>Connected to your workspace</p>
+      </div>
+      <span class="online-dot"></span>
     </div>
+  </aside>
 
+  <main class="workspace">
+    <header class="topbar">
+      <div>
+        <span class="breadcrumb">WORKSPACE / </span>
+        <strong>AI Assistant</strong>
+      </div>
+      <div class="connection"><span class="online-dot"></span> AI Online</div>
+    </header>
+
+    <section class="chat-area">
+      @if (messages.length === 0) {
+        <div class="welcome">
+          <div class="welcome-icon">✦</div>
+          <p class="eyebrow">YOUR WORKPLACE, SIMPLIFIED</p>
+          <h1>What can I help you<br /><span>discover today?</span></h1>
+          <p class="welcome-description">
+            Ask questions about your employees, explore workforce analytics,
+            or find answers in your company policies.
+          </p>
+
+          <div class="suggestions">
+            <button class="suggestion-card" (click)="useSuggestion('Show me the total number of employees')">
+              <span class="suggestion-icon purple">◫</span>
+              <strong>Workforce overview</strong>
+              <span>How many employees are there?</span>
+              <span class="card-arrow">↗</span>
+            </button>
+
+            <button class="suggestion-card" (click)="useSuggestion('What is Rahul Sharma salary?')">
+              <span class="suggestion-icon blue">♙</span>
+              <strong>Employee information</strong>
+              <span>Look up employee details</span>
+              <span class="card-arrow">↗</span>
+            </button>
+
+            <button class="suggestion-card" (click)="useSuggestion('What is the work-from-home policy?')">
+              <span class="suggestion-icon orange">▤</span>
+              <strong>Company policies</strong>
+              <span>Find answers from policy documents</span>
+              <span class="card-arrow">↗</span>
+            </button>
+
+            <button class="suggestion-card" (click)="useSuggestion('Compare average salaries by department')">
+              <span class="suggestion-icon green">⌁</span>
+              <strong>Salary analytics</strong>
+              <span>Explore departmental insights</span>
+              <span class="card-arrow">↗</span>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="messages">
+          @for (item of messages; track $index) {
+            <div class="message-row" [class.user-row]="item.sender === 'user'">
+              <div class="message-avatar" [class.user-avatar]="item.sender === 'user'">
+                {{ item.sender === 'user' ? 'ME' : '✦' }}
+              </div>
+              <div class="message-content">
+                <div class="message-name">
+                  {{ item.sender === 'user' ? 'You' : 'AI Assistant' }}
+                </div>
+                <div class="message-bubble">{{ item.text }}</div>
+              </div>
+            </div>
+          }
+          @if (loading) {
+            <div class="message-row">
+              <div class="message-avatar">✦</div>
+              <div class="message-content">
+                <div class="message-name">AI Assistant</div>
+                <div class="message-bubble typing">Thinking<span>.</span><span>.</span><span>.</span></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <footer class="composer-area">
+      <form class="composer" (ngSubmit)="sendMessage()">
+        <textarea
+          name="message"
+          [(ngModel)]="message"
+          placeholder="Ask anything about your employees or company policies..."
+          rows="1"
+          (keydown.enter)="$event.preventDefault(); sendMessage()"
+          [disabled]="loading"
+        ></textarea>
+        <button type="submit" class="send-button" [disabled]="!message.trim() || loading" aria-label="Send message">↑</button>
+      </form>
+      <p class="composer-note">AI-generated responses may be inaccurate. Verify important information.</p>
+    </footer>
   </main>
-
 </div>
