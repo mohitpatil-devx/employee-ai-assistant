@@ -22,19 +22,33 @@ client = genai.Client(
 
 
 # Database connection
+
+# Database connection
 def get_connection():
     try:
+        database_url = os.getenv("DATABASE_URL")
+
+        if database_url:
+            return psycopg2.connect(
+                database_url,
+                connect_timeout=10,
+                sslmode="require"
+            )
+
+        # Local development fallback
         return psycopg2.connect(
-            host=os.getenv("POSTGRES_HOST", "localhost"),
-            port=int(os.getenv("POSTGRES_PORT", "5432")),
-            database=os.getenv("POSTGRES_DB", "employee_analytics"),
-            user=os.getenv("POSTGRES_USER", "postgres"),
+            host="localhost",
+            port=5432,
+            database="employee_analytics",
+            user="postgres",
             password=os.getenv("POSTGRES_PASSWORD"),
             connect_timeout=5
         )
+
     except psycopg2.Error as error:
         print("Database connection failed:", error)
         return None
+
 
 
 # Get salary summary
@@ -69,8 +83,9 @@ def get_salary_summary():
 
 
 # Get employee count
+
 def get_employee_count():
-    """Get active employee count by department."""
+    """Get total and active employee counts."""
 
     connection = get_connection()
 
@@ -81,22 +96,26 @@ def get_employee_count():
         cursor = connection.cursor()
 
         cursor.execute("""
-            SELECT department, COUNT(*)
-            FROM employees
-            WHERE active = TRUE
-            GROUP BY department;
+            SELECT
+                COUNT(*) AS total_employees,
+                COUNT(*) FILTER (WHERE active = TRUE) AS active_employees
+            FROM employees;
         """)
 
-        results = cursor.fetchall()
+        result = cursor.fetchone()
 
         cursor.close()
         connection.close()
 
-        return str(results)
+        return str({
+            "total_employees": result[0],
+            "active_employees": result[1]
+        })
 
     except psycopg2.Error as error:
         connection.close()
         return f"Database query failed: {error}"
+
 
 
 # Get active employees
