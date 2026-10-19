@@ -11,7 +11,7 @@ interface ChatResponse {
 })
 export class ApiService {
 
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = 'https://employee-ai-assistant-je4p.onrender.com/api';
 
   constructor(private http: HttpClient) {}
 
